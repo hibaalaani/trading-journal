@@ -18,7 +18,7 @@ Deploy **frontend + API + SQLite** as a single app. Easiest.
    - If the app lives in a subfolder (e.g. `trading-journal`), set **Root Directory** to `trading-journal`.
 
 3. **Build & start**  
-   - **Build Command:** `npm install && npx prisma generate && npm run build`  
+   - **Build Command:** `npm install && npx prisma generate && npx prisma db push && npm run build`  
    - **Start Command:** `NODE_ENV=production npm run start`  
    - **Port:** Railway sets `PORT` automatically; leave it unset.
 
@@ -40,7 +40,7 @@ Deploy **frontend + API + SQLite** as a single app. Easiest.
    - **Root Directory:** `trading-journal` if needed.
 
 3. **Build & start**  
-   - **Build Command:** `npm install && npx prisma generate && npm run build`  
+   - **Build Command:** `npm install && npx prisma generate && npx prisma db push && npm run build`  
    - **Start Command:** `npm run start`  
    - Render sets `NODE_ENV=production` and `PORT` for you.
 

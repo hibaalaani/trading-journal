@@ -37,18 +37,26 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+function asyncHandler(
+  fn: (req: express.Request, res: express.Response, next: express.NextFunction) => Promise<void>
+) {
+  return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next)
+  }
+}
+
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true })
 })
 
-app.get('/api/trades', async (_req, res) => {
+app.get('/api/trades', asyncHandler(async (_req, res) => {
   const trades = await db.trade.findMany({
     orderBy: { date: 'desc' },
   })
   res.json(trades)
-})
+}))
 
-app.post('/api/trades', async (req, res) => {
+app.post('/api/trades', asyncHandler(async (req, res) => {
   const body = req.body ?? {}
 
   const direction = body.direction as TradeDirection
@@ -82,9 +90,9 @@ app.post('/api/trades', async (req, res) => {
   })
 
   res.status(201).json(trade)
-})
+}))
 
-app.put('/api/trades/:id', async (req, res) => {
+app.put('/api/trades/:id', asyncHandler(async (req, res) => {
   const id = req.params.id
   const body = req.body ?? {}
 
@@ -120,18 +128,32 @@ app.put('/api/trades/:id', async (req, res) => {
   })
 
   res.json(trade)
-})
+}))
 
-app.delete('/api/trades/:id', async (req, res) => {
+app.delete('/api/trades/:id', asyncHandler(async (req, res) => {
   const id = req.params.id
   await db.trade.delete({ where: { id } })
   res.status(204).end()
+}))
+
+app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error(err)
+  res.status(500).json({ error: 'Internal server error' })
 })
 
-// In production, serve the built frontend and SPA fallback
+// In production, serve the built frontend and SPA fallback.
+// Use process.cwd() so dist is found regardless of where the server module lives (e.g. Render).
 if (isProduction) {
-  const distPath = path.join(__dirname, '..', 'dist')
-  app.use(express.static(distPath))
+  const distPath = path.resolve(process.cwd(), 'dist')
+  app.use(
+    express.static(distPath, {
+      index: false,
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.css')) res.setHeader('Content-Type', 'text/css; charset=utf-8')
+        if (filePath.endsWith('.js')) res.setHeader('Content-Type', 'application/javascript; charset=utf-8')
+      },
+    })
+  )
   app.get('*', (_req, res) => {
     res.sendFile(path.join(distPath, 'index.html'))
   })

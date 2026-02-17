@@ -149,7 +149,7 @@ Edit `src/lib/calculations.ts` to add custom metrics
 ### Change Starting Equity
 In `src/components/EquityCurveChart.tsx`:
 ```typescript
-calculateEquityCurve(trades, 10000)  // Change 10000 to your starting balance
+calculateEquityCurve(trades, 2200)  // Change 10000 to your starting balance
 ```
 
 ---

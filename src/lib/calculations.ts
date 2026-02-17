@@ -138,7 +138,7 @@ export function calculatePeriodStats(trades: Trade[]): PeriodStats {
 /**
  * Calculate equity curve data points
  */
-export function calculateEquityCurve(trades: Trade[], startingBalance: number = 10000): EquityPoint[] {
+export function calculateEquityCurve(trades: Trade[], startingBalance: number = 2200): EquityPoint[] {
   const sortedTrades = [...trades].sort((a, b) => 
     new Date(a.date).getTime() - new Date(b.date).getTime()
   )
