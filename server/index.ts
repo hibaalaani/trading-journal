@@ -137,7 +137,12 @@ app.delete('/api/trades/:id', asyncHandler(async (req, res) => {
 }))
 
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error(err)
+  const message = err instanceof Error ? err.message : String(err)
+  const code = err && typeof err === 'object' && 'code' in err ? String((err as { code: string }).code) : ''
+  console.error('API error:', code || message, err)
+  if (code.startsWith('P')) {
+    console.error('Prisma error: ensure "npx prisma db push" ran in the build and the database path is writable (e.g. persistent disk on Render).')
+  }
   res.status(500).json({ error: 'Internal server error' })
 })
 
@@ -160,8 +165,22 @@ if (isProduction) {
 }
 
 const port = Number(process.env.PORT ?? 3001)
-app.listen(port, () => {
+app.listen(port, async () => {
   // eslint-disable-next-line no-console
   console.log(isProduction ? `App running on port ${port}` : `API listening on http://localhost:${port}`)
+  if (isProduction) {
+    try {
+      await db.trade.count()
+      // eslint-disable-next-line no-console
+      console.log('Database connection OK')
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Database connection failed:', e)
+      // eslint-disable-next-line no-console
+      console.error('Ensure your build command includes: npx prisma db push')
+      // eslint-disable-next-line no-console
+      console.error('On Render: add a persistent Disk mounted at path "prisma" so the DB is writable.')
+    }
+  }
 })
 

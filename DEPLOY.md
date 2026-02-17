@@ -41,11 +41,11 @@ Deploy **frontend + API + SQLite** as a single app. Easiest.
 
 3. **Build & start**  
    - **Build Command:** `npm install && npx prisma generate && npx prisma db push && npm run build`  
-   - **Start Command:** `npm run start`  
+   - **Start Command:** `npx prisma db push && npm run start`  
    - Render sets `NODE_ENV=production` and `PORT` for you.
 
-4. **Persistent disk (optional)**  
-   - “Environment” → add a **Disk**: path e.g. `prisma` so `prisma/trading.db` persists across deploys.
+4. **Persistent disk (required for SQLite)**  
+   - “Environment” → add a **Disk**: path **`prisma`** so `prisma/trading.db` is writable and persists. Without it, adding trades returns 500.
 
 5. **Deploy**  
    - After deploy, use the URL Render gives you (e.g. `https://trading-journal-xyz.onrender.com`). That’s your global URL.
