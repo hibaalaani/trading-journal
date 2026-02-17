@@ -1,0 +1,45 @@
+// Prisma Schema for Trading Journal
+// Easy to migrate from SQLite to PostgreSQL later
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./trading.db"
+}
+
+// Core trade model - stores all trade data
+model Trade {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Trade details
+  date          DateTime
+  asset         String
+  direction     String   // "LONG" or "SHORT"
+  entryPrice    Float
+  exitPrice     Float
+  positionSize  Float
+  commission    Float    @default(0)
+  notes         String?
+  
+  // Calculated fields (stored for performance)
+  grossPL       Float    // Gross profit/loss before commission
+  netPL         Float    // Net profit/loss after commission
+  returnPercent Float    // Return percentage
+  isWin         Boolean  // True if profitable, false if loss
+  
+  @@index([date])
+}
+
+// Future: User model for SaaS version
+// model User {
+//   id        String   @id @default(uuid())
+//   email     String   @unique
+//   name      String?
+//   createdAt DateTime @default(now())
+//   trades    Trade[]  @relation("UserTrades")
+// }
